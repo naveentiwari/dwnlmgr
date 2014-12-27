@@ -1,24 +1,53 @@
+/**
+ * @file    - mempool.hpp
+ * @brief   - This file contains the definition of fixed size memory block pool
+ * @author  - Naveen Kumar Tiwari
+ * @date    - 15-12-2014
+ */
 #ifndef BASE_MEMORYPOOLUNIT_HPP
 #define BASE_MEMORYPOOLUNIT_HPP
 
+/**
+ * @name    - MemoryPoolUnit
+ * @brief   - This class defines all the interfaces for memory pool unit 
+ */
 class MemoryPoolUnit
 {
-    public:
+public:
 
-                        MemoryPoolUnit              (uint16_t pBlcSize, uint32_t pTotBlcCount);
+        /**
+         * @name    - Constructors and destructors of the class
+         */
+                        MemoryPoolUnit              ();
                        ~MemoryPoolUnit              ();
 
-        uint8_t     *   Allocate                    ();
+       void             InitializeCache             (uint16_t pBlcSize, uint32_t pTotBlcCount);
+
+       /**
+        * @name - Public interfaces of the class
+        */
+        void        *   Allocate                    ();
         void            Free                        (void * pAddr);
 
-        bool            Cleanable                   ();
+inline  bool            Cleanable                   ();
+        bool            CheckAddressLimit           (void * pAddr);
+inline  bool            IsUsable                    ();
 
-    private:
+inline  uint8_t     *   GetBaseAddress              ();
+inline  uint8_t     *   GetLimitAddress             ();
 
-        uint8_t     *   GetAddress                  (uint32_t pBlcNum);
-        uint32_t        GetIndex                    (uint8_t * pAddr);
+private:
+
+        /**
+         * @name - Private methods of the class
+         */
+inline  uint8_t     *   GetAddress                  (uint32_t pBlcNum);
+inline  uint32_t        GetIndex                    (uint8_t * pAddr);
 
 
+        /**
+         * @name -  Private members of the class
+         */
         uint8_t     *   vStartPos;                  ///< Beginning of memory pool
         uint8_t     *   vNext;                      ///< Num of next free block
 
@@ -29,5 +58,7 @@ class MemoryPoolUnit
         uint32_t        vInitBlcCount;              ///< Num of initialized blocks
         uint16_t        vBlcSize;                   ///< Size of each block
 };
+
+#include "mempool.hxx"
 
 #endif // BASE_MEMORYPOOLUNIT_HPP
