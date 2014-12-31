@@ -1,0 +1,132 @@
+# -------------------------------------------------------------------------------------
+# ---------------------------------- Executable makefile ------------------------------
+#  ------------------------------------------------------------------------------------
+
+# give the name of the target
+TARGETNAME		:=
+
+# directories
+DEBUGDIR		:=bin/debug
+RELEASEDIR		:=bin/release
+
+# include directory
+INCLUDEDIR		:=
+
+# Source list, list of files that needs to be compiled
+SRC				:=
+
+# dependency list, list of directory that contains makefile that needs to be run before
+# running the content of this makefile
+DEPENDENCYLIST	:=
+
+# link requirements, libraries that needs to be linked without extension
+DLINK			:=
+RLINK			:=
+
+ifeq ($(OS),Windows_NT)
+
+	CC			:=cl #Compiler
+
+	FLAGCHAR	:=/
+	CCFLAG		:=/EHsc /c /nologo # common compile flags
+	LNKFLAG		:=/nologo# common linker flags
+	DCCFLAG		:=$(CCFLAG) /Zi /Od /DDEBUG # debug compile flags
+	DLNKFLAG	:=$(LNKFLAG) # debug link flags
+	RCCFLAG		:=$(CCFLAG) /O2 # release compile flags
+	RLNKFLAG	:=$(LNKFLAG) # release link flags
+
+	TARGETEXTN	:=.exe # final target extension
+	OBJECTEXTN	:=.obj # object file extension
+
+	OUTCFLAG	:=/Fo
+	OUTLFLAG	:=/Fe
+	PDBFLAG		:=/Fd$(DEBUGDIR)/$(TARGETNAME).pdb
+
+	DLINKLIB 	:=$(patsubst %, %.lib, $(DLINK))
+	RLINKLIB	:=$(patsubst %, %.lib, $(RLINK))
+
+else
+
+	CC			:=g++ #Compiler
+
+	FLAGCHAR	:=-
+	CCFLAG		:=-c# common compile flags
+	LNKFLAG		:=# common linker flags
+	DCCFLAG		:=$(CCFLAG) -g -DDEBUG # debug compile flags
+	DLNKFLAG	:=$(LNKFLAG) # debug link flags
+	RCCFLAG		:=$(CCFLAG) -O2 # release compile flags
+	RLNKFLAG	:=$(LNKFLAG) # release link flags
+
+	OUTCFLAG	:=-o
+	OUTLFLAG	:=-L. -o
+
+	TARGETEXTN	:=# final target extension
+	OBJECTEXTN	:=.o # object file extension
+
+	DLINKLIB 	:=$(patsubst %, %.a, $(DLINK))
+	RLINKLIB	:=$(patsubst %, %.a, $(RLINK))
+endif
+
+# debug obj list
+DOBJ			:=$(patsubst src/%.cpp, $(DEBUGDIR)/%$(OBJECTEXTN), $(SRC))
+# release obj list
+ROBJ			:=$(patsubst src/%.cpp, $(RELEASEDIR)/%$(OBJECTEXTN), $(SRC))
+# includes
+INCLUDES		:=$(patsubst %, $(FLAGCHAR)I%, $(INCLUDEDIR))
+
+# top level rules
+debug 	: depdebug selfdebug
+
+selfdebug : $(DEBUGDIR)/$(TARGETNAME)$(TARGETEXTN)
+
+depdebug :
+	echo "Making dependencies...";
+	for i in $(DEPENDENCYLIST); do \
+	make --no-print-directory -C $$i debug; \
+	done
+
+release : deprelease selfrelease
+
+selfrelease : $(RELEASEDIR)/$(TARGETNAME)$(TARGETEXTN)
+
+deprelease :
+	echo "Making dependencies...";
+	for i in $(DEPENDENCYLIST); do \
+	make --no-print-directory -C $$i release; \
+	done
+
+selfclean	: debugselfclean releaseselfclean
+
+debugselfclean	:
+	rm -rf $(DEBUGDIR)/*
+
+releaseselfclean	:
+	rm -rf $(RELEASEDIR)/*
+
+clean	: selfclean
+	echo "Cleaning dependencies...";
+	for i in $(DEPENDENCYLIST); do \
+	make --no-print-directory -C $$i clean; \
+	done
+
+# helper rules for top rules
+$(DEBUGDIR)/$(TARGETNAME)$(TARGETEXTN) : $(DOBJ)
+	@$(CC) $(DLNKFLAG) $(OUTLFLAG)$@ $(DOBJ) $(DLINKLIB)
+
+$(RELEASEDIR)/$(TARGETNAME)$(TARGETEXTN) : $(ROBJ)
+	@$(CC) $(RLNKFLAG) $(OUTLFLAG)$@ $(ROBJ) $(RLINKLIB)
+
+$(DEBUGDIR)/%$(OBJECTEXTN): src/%.cpp
+	@$(CC) $(DCCFLAG) $(INCLUDES) $^ $(OUTCFLAG)$@ $(PDBFLAG)
+
+$(RELEASEDIR)/%$(OBJECTEXTN): src/%.cpp
+	@$(CC) $(RCCFLAG) $(INCLUDES) $^ $(OUTCFLAG)$@
+
+# add the rules here for silent execution
+.SILENT: debug depdebug selfdebug release deprelease selfrelease selfclean clean debugselfclean releaseselfclean
+
+# set debug to default
+.DEFAULT: debug
+
+# set the phony targets
+.PHONY: clean selfclean debugselfclean releaseselfclean
