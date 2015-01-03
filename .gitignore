@@ -1,0 +1,6 @@
+*.out
+.D*
+bin
+bin/debug/*
+bin/release/*
+debug.log

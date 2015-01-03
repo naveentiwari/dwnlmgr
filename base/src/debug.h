@@ -22,12 +22,12 @@ void                    CheckAssertions                     (bool pAssertResult,
 
 #define BASE_DEBUG_LOG  "debug.log"
 
-#define DERR_IF_TRUE(c)         CheckAssertions(c, true, __FILE__, __func__, __LINE__)
-#define DERR_IF_NULL(c)         CheckAssertions(c, false, __FILE__, __func__, __LINE__)
+#define DERR_IF_TRUE(c)         CheckAssertions(c, false, __FILE__, __func__, __LINE__)
+#define DERR_IF_NULL(c)         CheckAssertions(c, true, __FILE__, __func__, __LINE__)
 #define DEBUG_ERROR             CheckAssertions(true, false, __FILE__, __func__, __LINE__)
 
-#define VERIFY_IF_TRUE (c)      CheckAssertions(c, true, __FILE__, __func__, __LINE__)
-#define VERIFY_IF_NULL (c)      CheckAssertions(c, false, __FILE__, __func__, __LINE__)
+#define VERIFY_IF_TRUE (c)      CheckAssertions(c, false, __FILE__, __func__, __LINE__)
+#define VERIFY_IF_NULL (c)      CheckAssertions(c, true, __FILE__, __func__, __LINE__)
 
 #else // DEBUG
 
