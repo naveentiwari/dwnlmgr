@@ -41,13 +41,11 @@ void ThreadPool::Initialize (uint32_t pThreadCount)
     // set vContinue to true
     vContinue       = true;
 
-#ifdef DEBUG
     // set the thread count
     vThreadCount    = pThreadCount;
-#endif // DEBUG
 
     // allocate the threads
-    vThreads        = MALLOC std::thread[vThreadCount];
+    vThreads        = new std::thread[vThreadCount];
 
     // walk all the threads and set the worker functions
     for (uint32_t lndx=0; lndx<vThreadCount; ++lndx) {

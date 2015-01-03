@@ -77,9 +77,7 @@ static  void                                StartExecution              (ThreadP
         bool                                vContinue;                  ///< flag to control the stop condition of the thread
         bool                                vRejectTask;                ///< flag to allow enque of tasks
 
-#ifdef DEBUG
         uint32_t                            vThreadCount;               ///< thread count
-#endif // DEBUG
 
         std::mutex                          vSyncTaskQ;                 ///< mutex for the queue
         
