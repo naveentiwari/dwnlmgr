@@ -31,6 +31,7 @@
 #include <queue>
 #include <iostream>
 #include <unistd.h>
+#include <csignal>
 
 //#define uint32_t    long;
 //#define uint64_t    long long;

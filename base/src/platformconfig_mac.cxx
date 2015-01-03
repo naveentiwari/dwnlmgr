@@ -22,7 +22,7 @@ void HandleDebugError (char *pErrMsg)
 {
     pErrMsg = NULL;
 
-    //raise (SIGDBGERR);
+    raise (SIGDBGERR);
 }
 
 /**

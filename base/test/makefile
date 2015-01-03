@@ -13,7 +13,7 @@ RELEASEDIR		:=bin/release
 INCLUDEDIR		:=../
 
 # Source list, list of files that needs to be compiled
-SRC				:=src/dlisttest.cpp src/slisttest.cpp src/mempool.cpp
+SRC				:=src/dlisttest.cpp src/slisttest.cpp src/mempool.cpp src/testdebug.cpp
 
 # dependency list, list of directory that contains makefile that needs to be run before
 # running the content of this makefile
@@ -136,3 +136,6 @@ $(RELEASEDIR)/%$(OBJECTEXTN): src/%.cpp
 
 # set the phony targets
 .PHONY: clean selfclean debugselfclean releaseselfclean
+
+
+.SECONDARY: debug $(DOBJ)
