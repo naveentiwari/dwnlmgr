@@ -196,6 +196,26 @@ inline  uint32_t                Nodes               ();
         DList                   vList;              ///< Doubly linked list
 };
 
+class SyncEventSList {
+    public:
+
+        /**
+        * @name - Constructors and destructor of the class
+        */
+                                SyncEventSList      ();
+                               ~SyncEventSList      ();
+
+        void                    InsertAtLast        (SListElem * pElem);
+        SListElem       *       DeleteFirst         ();
+
+    private:
+
+        std::condition_variable vCV;                ///< condition variable
+        std::mutex              vLock;              ///< lock to synchronize threads
+        SList                   vList;              ///< single link list
+        bool                    vIsWaiting;         ///< variable to check if user of list is waiting
+};
+
 #include "list.hxx"
 
 #endif // BASE_LIST_HPP

@@ -1,17 +1,17 @@
 # give the name of the target
-TARGETNAME		:=base
+TARGETNAME		:=network
 
 # directories
 SOURCEDIR		:=src
 DEBUGDIR		:=bin/debug
 RELEASEDIR		:=bin/release
-INCLUDEDIR		:=./
+INCLUDEDIR		:=./ ../base/
 
 # Source list
-SRC				:=src/mempool.cpp src/mempoolmgr.cpp src/debug.cpp src/platformconfig.cpp src/alloc.cpp src/threadpool.cpp src/lock.cpp src/list.cpp src/joblist.cpp src/tokenize.cpp src/strhelper.cpp
+SRC				:=src/url.cpp
 
 # dependency list
-DEPENDENCYLIST	:=
+DEPENDENCYLIST	:=../base
 
 ifeq ($(OS),Windows_NT)
 
@@ -19,7 +19,7 @@ ifeq ($(OS),Windows_NT)
 	LNK			:=lib #linker
 
 	FLAGCHAR	:=/
-	CCFLAG		:=/EHsc /c /nologo /DCHAR8# common compile flags
+	CCFLAG		:=/EHsc /c /nologo # common compile flags
 	LNKFLAG		:=/nologo # common linker flags
 	DCCFLAG		:=$(CCFLAG) /Zi /Od /DDEBUG # debug compile flags
 	DLNKFLAG	:=$(LNKFLAG) # debug link flags
@@ -35,11 +35,11 @@ ifeq ($(OS),Windows_NT)
 
 else
 
-	CC			:=clang++ #Compiler
+	CC			:=g++ #Compiler
 	LNK			:=ar #linker
 
 	FLAGCHAR	:=-
-	CCFLAG		:=-c -std=c++11 -W -Wall -Wextra -pedantic -DCHAR8# common compile flags
+	CCFLAG		:=-c -std=c++0x -W -Wall -Wextra -pedantic# common compile flags
 	LNKFLAG		:=rs # common linker flags
 	DCCFLAG		:=$(CCFLAG) -g -DDEBUG # debug compile flags
 	DLNKFLAG	:=$(LNKFLAG) # debug link flags
@@ -66,6 +66,7 @@ debug 	: depdebug selfdebug
 selfdebug : $(DEBUGDIR)/$(TARGETNAME)$(TARGETEXTN)
 
 depdebug :
+	echo "Making dependencies...";
 	for i in $(DEPENDENCYLIST); do \
 	make --no-print-directory -C $$i debug; \
 	done
@@ -75,6 +76,7 @@ release : deprelease selfrelease
 selfrelease : $(RELEASEDIR)/$(TARGETNAME)$(TARGETEXTN)
 
 deprelease :
+	echo "Making dependencies...";
 	for i in $(DEPENDENCYLIST); do \
 	make --no-print-directory -C $$i release; \
 	done
@@ -88,6 +90,7 @@ rselfclean	:
 	rm -rf $(RELEASEDIR)/*
 
 clean	: selfclean
+	echo "Cleaning dependencies...";
 	for i in $(DEPENDENCYLIST); do \
 	make --no-print-directory -C $$i clean; \
 	done
@@ -100,11 +103,9 @@ $(RELEASEDIR)/$(TARGETNAME)$(TARGETEXTN) : $(ROBJ)
 	@$(LNK) $(RLNKFLAG) $(OUTLFLAG)$@ $(ROBJ)
 
 $(DEBUGDIR)/%$(OBJECTEXTN): src/%.cpp
-	@echo $^
 	@$(CC) $(DCCFLAG) $(INCLUDES) $^ $(OUTCFLAG)$@ $(PDBFLAG)
 
 $(RELEASEDIR)/%$(OBJECTEXTN): src/%.cpp
-	@echo $^
 	@$(CC) $(RCCFLAG) $(INCLUDES) $^ $(OUTCFLAG)$@
 
 # add the rules here for silent execution

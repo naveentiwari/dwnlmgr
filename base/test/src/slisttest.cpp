@@ -55,9 +55,6 @@ void SListInsertTest ()
     }
 }
 
-void InitializeDebug ();
-void FinalizeDebug ();
-
 int main ()
 {
     InitializeDebug ();

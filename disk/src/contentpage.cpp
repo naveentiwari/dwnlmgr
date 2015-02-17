@@ -18,20 +18,22 @@ ContentPage::ContentPage (uint16_t pThrdNum, uint64_t pStartOfZ, FileHeader * pF
 {
     // set the page header info in this
     vFileHeader     = pFileHeader;
+
+    vCurDiskPage    = pFileHeader->SetThreadPage (pThrdNum);
     vPageInUse      = 0;
-    vOfZInPage      = sizeof(tPageHeader);
-    vCurrentPage    = pFileHeader->SetThreadPage (pThrdNum);
+    vOfZInPage      = DISK_PAGE_START_OFFSET;
     
     // allocate the page
-    vPageSet    = (uint8_t *) AllocAligned (DISK_CONTIGUOUS_PAGE_COUNT * DISK_PAGE_SIZE, DISK_PAGE_SIZE);
+    vPageSet        = (uint8_t *) AllocAligned (DISK_CONTIGUOUS_PAGE_COUNT * DISK_PAGE_SIZE, DISK_PAGE_SIZE);
+    vCurPagePtr     = vPageSet;
 
     // set the header
-    vPageHeader = (tPageHeader *) vPageSet;
+    vCurPageHeader  = (tPageHeader *) vPageSet;
 
     // set info in the header
-    vPageHeader->uStartOfZ       = pStartOfZ;
-    vPageHeader->uContentSize    = 0;
-    vPageHeader->uNextPage       = 0;
+    vCurPageHeader->uStartOfZ       = pStartOfZ;
+    vCurPageHeader->uContentSize    = 0;
+    vCurPageHeader->uNextPage       = 0;
 }
 
 /**
@@ -43,9 +45,27 @@ ContentPage::~ContentPage ()
     FreeAligned (vPageSet);
 }
 
-//void ContentPage::Write (void * pBuf, uint32_t pSize)
-//{
-//}
+void ContentPage::Write (void * pBuf, uint32_t pSize, SyncSList * pList)
+{
+        uint32_t    sizeav;
+
+    DERR_IF_NULL (pBuf);
+    DERR_IF_NULL (pList);
+
+    sizeav  = DISK_PAGE_SIZE - vOfZInPage;
+
+    if (sizeav > pSize) {
+
+        memcpy (vCurPagePtr + vOfZInPage, pBuf, pSize);
+
+        vOfZInPage += pSize;
+
+        if (vCurPageHeader->uIsDirty)
+            return;
+
+        pList.InsertAtLast (vCurPagePtr);
+    }
+}
 
 void ContentPage::PrepareToPersist ()
 {

@@ -11,7 +11,7 @@
 
 #include <libkern/OSAtomic.h>
 
-#define SIGDBGERR   30
+#define SIGDBGERR   15
 
 /**
 * @brief - This function handles the debug error in non windows environment. The attached debugger should handle this exception

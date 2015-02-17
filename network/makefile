@@ -1,69 +1,89 @@
+# -------------------------------------------------------------------------------------
+# ---------------------------------- Executable makefile ------------------------------
+#  ------------------------------------------------------------------------------------
+
 # give the name of the target
-TARGETNAME		:=base
+TARGETNAME		:=networktest
 
 # directories
-SOURCEDIR		:=src
 DEBUGDIR		:=bin/debug
 RELEASEDIR		:=bin/release
-INCLUDEDIR		:=./
 
-# Source list
-SRC				:=src/mempool.cpp src/mempoolmgr.cpp src/debug.cpp src/platformconfig.cpp src/alloc.cpp src/threadpool.cpp src/lock.cpp src/list.cpp src/joblist.cpp src/tokenize.cpp src/strhelper.cpp
+# include directory
+INCLUDEDIR		:=./ ../base/
 
-# dependency list
-DEPENDENCYLIST	:=
+# Source list, list of files that needs to be compiled
+SRC				:=src/url.cpp
+
+# dependency list, list of directory that contains makefile that needs to be run before
+# running the content of this makefile
+DEPENDENCYLIST	:=../base
+
+# link requirements, libraries that needs to be linked without extension
+DLINK			:=../base/$(DEBUGDIR)/base
+RLINK			:=../base/$(RELEASEDIR)/base
 
 ifeq ($(OS),Windows_NT)
 
 	CC			:=cl #Compiler
-	LNK			:=lib #linker
 
 	FLAGCHAR	:=/
 	CCFLAG		:=/EHsc /c /nologo /DCHAR8# common compile flags
-	LNKFLAG		:=/nologo # common linker flags
+	LNKFLAG		:=/nologo# common linker flags
 	DCCFLAG		:=$(CCFLAG) /Zi /Od /DDEBUG # debug compile flags
 	DLNKFLAG	:=$(LNKFLAG) # debug link flags
 	RCCFLAG		:=$(CCFLAG) /O2 # release compile flags
 	RLNKFLAG	:=$(LNKFLAG) # release link flags
 
-	TARGETEXTN	:=.lib # final target extension
+	TARGETEXTN	:=.exe # final target extension
 	OBJECTEXTN	:=.obj # object file extension
 
 	OUTCFLAG	:=/Fo
-	OUTLFLAG	:=/OUT:
+	OUTLFLAG	:=/Fe
 	PDBFLAG		:=/Fd$(DEBUGDIR)/$(TARGETNAME).pdb
+
+	DLINKLIB 	:=$(patsubst %, %.lib, $(DLINK))
+	RLINKLIB	:=$(patsubst %, %.lib, $(RLINK))
 
 else
 
-	CC			:=clang++ #Compiler
-	LNK			:=ar #linker
+	CC			:=g++ #Compiler
 
 	FLAGCHAR	:=-
-	CCFLAG		:=-c -std=c++11 -W -Wall -Wextra -pedantic -DCHAR8# common compile flags
-	LNKFLAG		:=rs # common linker flags
+	CCFLAG		:=-c -DCHAR8# common compile flags
+	LNKFLAG		:=# common linker flags
 	DCCFLAG		:=$(CCFLAG) -g -DDEBUG # debug compile flags
 	DLNKFLAG	:=$(LNKFLAG) # debug link flags
 	RCCFLAG		:=$(CCFLAG) -O2 # release compile flags
 	RLNKFLAG	:=$(LNKFLAG) # release link flags
 
-	OUTCFLAG	:=-o 
-	OUTLFLAG	:= 
+	OUTCFLAG	:=-o
+	OUTLFLAG	:=-L. -o
 
-	TARGETEXTN	:=.a # final target extension
+	TARGETEXTN	:=# final target extension
 	OBJECTEXTN	:=.o # object file extension
+
+	DLINKLIB 	:=$(patsubst %, %.a, $(DLINK))
+	RLINKLIB	:=$(patsubst %, %.a, $(RLINK))
 endif
 
 # debug obj list
 DOBJ			:=$(patsubst src/%.cpp, $(DEBUGDIR)/%$(OBJECTEXTN), $(SRC))
 # release obj list
 ROBJ			:=$(patsubst src/%.cpp, $(RELEASEDIR)/%$(OBJECTEXTN), $(SRC))
+
+# debug exe list
+DEXE			:=$(patsubst src/%.cpp, $(DEBUGDIR)/%$(TARGETEXTN), $(SRC))
+# release exe list
+REXE			:=$(patsubst src/%.cpp, $(RELEASEDIR)/%$(TARGETEXTN), $(SRC))
+
 # includes
 INCLUDES		:=$(patsubst %, $(FLAGCHAR)I%, $(INCLUDEDIR))
 
 # top level rules
 debug 	: depdebug selfdebug
 
-selfdebug : $(DEBUGDIR)/$(TARGETNAME)$(TARGETEXTN)
+selfdebug : $(DEXE)
 
 depdebug :
 	for i in $(DEPENDENCYLIST); do \
@@ -72,19 +92,19 @@ depdebug :
 
 release : deprelease selfrelease
 
-selfrelease : $(RELEASEDIR)/$(TARGETNAME)$(TARGETEXTN)
+selfrelease : $(REXE)
 
 deprelease :
 	for i in $(DEPENDENCYLIST); do \
 	make --no-print-directory -C $$i release; \
 	done
 
-selfclean	: dselfclean rselfclean
+selfclean	: debugselfclean releaseselfclean
 
-dselfclean	:
+debugselfclean	:
 	rm -rf $(DEBUGDIR)/*
 
-rselfclean	:
+releaseselfclean	:
 	rm -rf $(RELEASEDIR)/*
 
 clean	: selfclean
@@ -93,11 +113,12 @@ clean	: selfclean
 	done
 
 # helper rules for top rules
-$(DEBUGDIR)/$(TARGETNAME)$(TARGETEXTN) : $(DOBJ)
-	@$(LNK) $(DLNKFLAG) $(OUTLFLAG)$@ $(DOBJ)
 
-$(RELEASEDIR)/$(TARGETNAME)$(TARGETEXTN) : $(ROBJ)
-	@$(LNK) $(RLNKFLAG) $(OUTLFLAG)$@ $(ROBJ)
+$(DEBUGDIR)/%$(TARGETEXTN): $(DEBUGDIR)/%$(OBJECTEXTN)
+	@$(CC) $(DLNKFLAG) $(OUTLFLAG)$@ $^ $(DLINKLIB)
+
+$(RELEASEDIR)/%$(TARGETEXTN): $(RELEASEDIR)/%$(OBJECTEXTN)
+	@$(CC) $(RLNKFLAG) $(OUTLFLAG)$@ $^ $(RLINKLIB)
 
 $(DEBUGDIR)/%$(OBJECTEXTN): src/%.cpp
 	@echo $^
@@ -108,10 +129,13 @@ $(RELEASEDIR)/%$(OBJECTEXTN): src/%.cpp
 	@$(CC) $(RCCFLAG) $(INCLUDES) $^ $(OUTCFLAG)$@
 
 # add the rules here for silent execution
-.SILENT: debug depdebug selfdebug release deprelease selfrelease selfclean clean dselfclean rselfclean
+.SILENT: debug depdebug selfdebug release deprelease selfrelease selfclean clean debugselfclean releaseselfclean
 
 # set debug to default
 .DEFAULT: debug
 
 # set the phony targets
 .PHONY: clean selfclean debugselfclean releaseselfclean
+
+
+.SECONDARY: debug $(DOBJ)

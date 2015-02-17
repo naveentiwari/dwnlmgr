@@ -9,7 +9,6 @@
 #ifndef BASE_H
 #define BASE_H
 
-#define MAX_TXT_BUF             2048
 #define DEFAULT_SLEEP_TIME      1
 #define LOW32_MASK              (0x0000ffff)
 
@@ -33,17 +32,18 @@
 #include <unistd.h>
 #include <csignal>
 
-//#define uint32_t    long;
-//#define uint64_t    long long;
-
 typedef uint32_t SimpleLock;
 
 #include "src/platformconfig.h"
+#include "src/datatype.h"
+#include "src/strhelper.h"
 #include "src/debug.h"
 #include "src/lock.hpp"
 #include "src/alloc.h"
 #include "src/list.hpp"
+#include "src/joblist.hpp"
 #include "src/mempool.hpp"
+#include "src/tokenize.hpp"
 #include "src/mempoolmgr.hpp"
 #include "src/threadpool.hpp"
 

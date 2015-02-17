@@ -10,10 +10,11 @@
 #ifndef BASE_DEBUG_H
 #define BASE_DEBUG_H
 
-#ifdef  DEBUG
-
 void                    InitializeDebug                     ();
 void                    FinalizeDebug                       ();
+
+#ifdef  DEBUG
+
 void                    CheckAssertions                     (bool pAssertResult,
                                                              bool pExpectResult,
                                                              const char * pFile,

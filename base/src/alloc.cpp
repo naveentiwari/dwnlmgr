@@ -53,3 +53,34 @@ void FreeAligned (void * pPtr)
 {
     free (((void**)pPtr)[-1]);
 }
+
+void * Calloc (uint64_t pAllocSize)
+{
+        void    * ptr;
+
+    ptr = Malloc (pAllocSize);
+
+    memset (ptr, 0, pAllocSize);
+
+    return ptr;
+}
+
+void Free (void * pPtr)
+{
+    free (pPtr);
+    //delete pPtr;
+}
+
+StrPtr MakeString (CStrPtr pSrcStr)
+{
+        void    *   ptr;
+        Long        len;
+
+    len     = (StrLen (pSrcStr) + 1) * sizeof (Char);
+
+    ptr     = Malloc (len);
+
+    memcpy (ptr, pSrcStr, len);
+
+    return (StrPtr)ptr;
+}

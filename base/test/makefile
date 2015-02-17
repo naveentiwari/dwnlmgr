@@ -13,7 +13,7 @@ RELEASEDIR		:=bin/release
 INCLUDEDIR		:=../
 
 # Source list, list of files that needs to be compiled
-SRC				:=src/dlisttest.cpp src/slisttest.cpp src/mempool.cpp src/testdebug.cpp
+SRC				:=src/joblisttest.cpp #src/dlisttest.cpp src/slisttest.cpp src/mempool.cpp src/testdebug.cpp
 
 # dependency list, list of directory that contains makefile that needs to be run before
 # running the content of this makefile
@@ -50,7 +50,7 @@ else
 	CC			:=g++ #Compiler
 
 	FLAGCHAR	:=-
-	CCFLAG		:=-c# common compile flags
+	CCFLAG		:=-c -DCHAR8# common compile flags
 	LNKFLAG		:=# common linker flags
 	DCCFLAG		:=$(CCFLAG) -g -DDEBUG # debug compile flags
 	DLNKFLAG	:=$(LNKFLAG) # debug link flags

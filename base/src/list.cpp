@@ -36,7 +36,7 @@ SList::~SList ()
 void SList::InsertAtLast (SListElem * pElem)
 {
     // element should not be null
-    DERR_IF_TRUE (pElem);
+    DERR_IF_NULL (pElem);
 
     // check if the list is empty
     if (!vTail) {
@@ -62,7 +62,7 @@ void SList::InsertAtLast (SListElem * pElem)
 void SList::InsertAtFirst (SListElem * pElem)
 {
     // element should not be null
-    DERR_IF_TRUE (pElem);
+    DERR_IF_NULL (pElem);
 
     // check if the list is empty
     if (!vHead) {

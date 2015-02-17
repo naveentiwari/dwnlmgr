@@ -30,7 +30,7 @@ tDListNumElem * GetNumElemNode (uint32_t pNum)
 
 void DListInsertTest ()
 {
-        DList               lst;
+        SyncDList               lst;
         DListElem   *       elem;
 
     lst.InsertAtFirst (GetNumElemNode (5));
@@ -44,7 +44,6 @@ void DListInsertTest ()
     lst.InsertAtLast (GetNumElemNode (2));
     lst.InsertAtLast (GetNumElemNode (1));
     lst.InsertAtLast (GetNumElemNode (0));
-    //lst.InsertAtLast (NULL);
 
     lst.Walk (DoPrintNumElemNode, NULL);
     lst.WalkBack (DoPrintNumElemNode, NULL);
@@ -53,10 +52,27 @@ void DListInsertTest ()
 
         delete (lst.DeleteFirst ());
     }
-}
 
-void InitializeDebug ();
-void FinalizeDebug ();
+    lst.InsertAtFirst (GetNumElemNode (5));
+    lst.InsertAtFirst (GetNumElemNode (6));
+    lst.InsertAtFirst (GetNumElemNode (7));
+    lst.InsertAtFirst (GetNumElemNode (8));
+    lst.InsertAtFirst (GetNumElemNode (9));
+    
+    lst.InsertAtLast (GetNumElemNode (4));
+    lst.InsertAtLast (GetNumElemNode (3));
+    lst.InsertAtLast (GetNumElemNode (2));
+    lst.InsertAtLast (GetNumElemNode (1));
+    lst.InsertAtLast (GetNumElemNode (0));
+
+    lst.Walk (DoPrintNumElemNode, NULL);
+    lst.WalkBack (DoPrintNumElemNode, NULL);
+
+    while (lst.Nodes ()) {
+
+        delete (lst.DeleteLast ());
+    }
+}
 
 int main ()
 {
